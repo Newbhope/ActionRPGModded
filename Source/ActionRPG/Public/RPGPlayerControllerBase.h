@@ -15,7 +15,6 @@ class ACTIONRPG_API ARPGPlayerControllerBase : public APlayerController, public 
 
 public:
 	// Constructor and overrides
-	ARPGPlayerControllerBase() {}
 	virtual void BeginPlay() override;
 
 	/** Map of all items owned by this player, from definition to data */

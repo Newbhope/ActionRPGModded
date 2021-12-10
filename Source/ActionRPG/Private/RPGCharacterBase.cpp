@@ -3,6 +3,8 @@
 #include "RPGCharacterBase.h"
 #include "Items/RPGItem.h"
 #include "AbilitySystemGlobals.h"
+#include "FireAxeProjectile.h"
+#include "Kismet/GameplayStatics.h"
 #include "Abilities/RPGGameplayAbility.h"
 
 #pragma optimize( "", off )
@@ -22,18 +24,30 @@ ARPGCharacterBase::ARPGCharacterBase()
 	OnAttack.AddDynamic(this, &ARPGCharacterBase::OnMeleeAttack);
 }
 
-void ARPGCharacterBase::OnMeleeAttack()
+void ARPGCharacterBase::OnMeleeAttack(const FTransform& PlayerTransform)
 {
-	UE_LOG(LogTemp, Log, TEXT("Melee Attack"));
-
-	UClass* ActorClass = LoadObject<UClass>(nullptr, TEXT("/Game/Blueprints/Weapon/FireAxeActor.FireAxeActor_C"));
-
-	FActorSpawnParameters Params;
-
-	FTransform ActorTransform(GetActorLocation());
-
 	UWorld* World = GEngine->GameViewport->GetWorld();
-	World->SpawnActor<AActor>(ActorClass, ActorTransform, Params);
+	if (GEngine->GameViewport == nullptr) return;
+
+	// This is where my modded attack code is
+
+	UClass* AxeActorClass = LoadObject<UClass>(nullptr, TEXT("/Game/Blueprints/Weapon/BP_FireAxeProjectile.BP_FireAxeProjectile_C"));
+
+	const FActorSpawnParameters Params;
+
+	// Get camera vector to launch axe that way
+	const APlayerCameraManager* CameraManager = UGameplayStatics::GetPlayerCameraManager(World, 0);
+	const FRotator CameraRotation = CameraManager->GetCameraRotation();
+	const FVector CameraVector = CameraRotation.Vector();
+
+	// Pass vector to spawned axe. Deferred spawning to set up everything first
+	AActor* NewFireAxe = UGameplayStatics::BeginDeferredActorSpawnFromClass(World, AxeActorClass, PlayerTransform);
+	CastChecked<AFireAxeProjectile>(NewFireAxe)->MovementDirection = CameraVector;
+	
+	NewFireAxe->SetActorRotation(CameraVector.Rotation() + FRotator(0, -90, 0));
+	UGameplayStatics::FinishSpawningActor(NewFireAxe, PlayerTransform);
+
+	// World->SpawnActor<AActor>(AxeActorClass, PlayerTransform, Params);
 }
 
 UAbilitySystemComponent* ARPGCharacterBase::GetAbilitySystemComponent() const

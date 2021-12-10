@@ -206,5 +206,5 @@ protected:
 	friend URPGAttributeSet;
 
 	UFUNCTION()
-	void OnMeleeAttack();
+	void OnMeleeAttack(const FTransform& PlayerTransform);
 };

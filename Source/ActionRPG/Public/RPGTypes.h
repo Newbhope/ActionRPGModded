@@ -142,5 +142,5 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSaveGameLoaded, URPGSaveGame*, Sa
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnSaveGameLoadedNative, URPGSaveGame*);
 
 /** Delegate called when a player attack occurs */
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAttack);
-DECLARE_MULTICAST_DELEGATE(FOnAttackNative);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAttack, const FTransform&, PlayerTransform);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnAttackNative, const FTransform&);
